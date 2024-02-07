@@ -65,7 +65,7 @@
 // according to discussion on issue #14 it might be more suitable to set the separation
 // limit to the same time as the 'low' part of the sync signal for the current protocol.
 // should be set to the minimum value of pulselength * the sync signal
-#define RCSWITCH_SEPARATION_LIMIT 6000
+#define RCSWITCH_SEPARATION_LIMIT 4100
 
 class RCSwitch {
 
@@ -84,7 +84,7 @@ class RCSwitch {
     void switchOff(char sGroup, int nDevice);
 
     void sendTriState(const char* sCodeWord);
-    void send(unsigned long long code, unsigned int length);
+    void send(uint64_t code, unsigned int length);
     void send(const char* sCodeWord);
 
     #if not defined( RCSwitchDisableReceiving )
@@ -194,6 +194,21 @@ class RCSwitch {
     #endif
 
 
+};
+
+////
+class Keeloq {
+  public:
+    Keeloq();
+    void SetKey(unsigned long keyHigh, unsigned long keyLow);
+    unsigned long GetKey(bool HighLow);
+    unsigned long Encrypt(unsigned long data);
+    unsigned long Decrypt(unsigned long data);
+    void NormLearn(unsigned long FixSN);
+    unsigned long ReflectPack(unsigned long PackSrc);
+  private:
+    unsigned long _keyHigh;
+    unsigned long _keyLow;
 };
 
 #endif
