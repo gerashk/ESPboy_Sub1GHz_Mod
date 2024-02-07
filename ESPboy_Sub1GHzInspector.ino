@@ -19,49 +19,49 @@ v1.0
 #define TFTchipSelectPin    8
 
 #define MAX_RECORDS_TO_STORE 40
-#define DEFAULT_SIGNAL_REPEAT_NUMBER 3
+#define DEFAULT_SIGNAL_REPEAT_NUMBER 4
 
 String protDecode[]={
 "Unknown",
-"Protocol 01 (Princeton, PT-2240)",
-"Protocol 02",
+"Protocol 01 Princeton, PT-2240",
+"Protocol 02 AT-Motor?",
 "Protocol 03",
 "Protocol 04",
 "Protocol 05",
-"Protocol 06 (HT6P20B)",
-"Protocol 07 (HS2303-PT, i. e. used in AUKEY Remote)",
-"Protocol 08 (Came 12bit, HT12E)",
-"Protocol 09 (Nice_Flo 12bit)",
-"Protocol 10 (V2 phoenix)",
-"Protocol 11 (Nice_FloR-S 52bit)",
-"Protocol 12 (Keeloq 64/66) false(ok)",
-"Protocol 13 test (CFM)",
-"Protocol 14 test (StarLine)",
+"Protocol 06 HT6P20B",
+"Protocol 07 HS2303-PT, i. e. used in AUKEY Remote",
+"Protocol 08 Came 12bit, HT12E",
+"Protocol 09 Nice_Flo 12bit",
+"Protocol 10 V2 phoenix",
+"Protocol 11 Nice_FloR-S 52bit",
+"Protocol 12 Keeloq 64/66 falseok",
+"Protocol 13 test CFM",
+"Protocol 14 test StarLine",
 "Protocol 15",
-"Protocol 16 (Einhell)",
-"Protocol 17 (InterTechno PAR-1000)",
-"Protocol 18 (Intertechno ITT-1500)",
-"Protocol 19 (Murcury)",
-"Protocol 20 (AC114)",
-"Protocol 21 (DC250)",
-"Protocol 22 (Mandolyn/Lidl TR-502MSV/RC-402/RC-402DX)",
-"Protocol 23 (Lidl TR-502MSV/RC-402 - Flavien)",
-"Protocol 24 (Lidl TR-502MSV/RC701)",
-"Protocol 25 (NEC)",
-"Protocol 26 (Arlec RC210)",
-"Protocol 27 (Zap, FHT-7901)",
-"Protocol 28 github.com/sui77/rc-switch/pull/115",
-"Protocol 29 (NEXA)",
-"Protocol 30 (Anima)",
-"Protocol 31 (Mertik Maxitrol G6R-H4T1)",
-"Protocol 32 github.com/sui77/rc-switch/pull/277",
-"Protocol 33 (Dooya Control DC2708L)",
+"Protocol 16 Einhell",
+"Protocol 17 InterTechno PAR-1000",
+"Protocol 18 Intertechno ITT-1500",
+"Protocol 19 Murcury",
+"Protocol 20 AC114",
+"Protocol 21 DC250",
+"Protocol 22 Mandolyn/Lidl TR-502MSV/RC-402/RC-402DX",
+"Protocol 23 Lidl TR-502MSV/RC-402 - Flavien",
+"Protocol 24 Lidl TR-502MSV/RC701",
+"Protocol 25 NEC",
+"Protocol 26 Arlec RC210",
+"Protocol 27 Zap, FHT-7901",
+"Protocol 28", // github.com/sui77/rc-switch/pull/115
+"Protocol 29 NEXA",
+"Protocol 30 Anima",
+"Protocol 31 Mertik Maxitrol G6R-H4T1",
+"Protocol 32", //github.com/sui77/rc-switch/pull/277
+"Protocol 33 Dooya Control DC2708L",
 "Protocol 34 DIGOO SD10 ", //so as to use this protocol RCSWITCH_SEPARATION_LIMIT must be set to 2600
 "Protocol 35 Dooya 5-Channel blinds remote DC1603",
 "Protocol 36 DC2700AC", //Dooya remote DC2700AC for Dooya DT82TV curtains motor
 "Protocol 37 DEWENWILS Power Strip",
-"Protocol 38 (Nexus weather, 36 bit)",
-"Protocol 39 (Louvolite) with premable"
+"Protocol 38 Nexus weather, 36 bit",
+"Protocol 39 Louvolite with premable"
 };
 
 
@@ -77,7 +77,7 @@ const char *menuMain[] PROGMEM = {
 };
 
 const char *menuRecord[] PROGMEM = {
-  "-SEND", //send selected record
+  "SEND", //send selected record
   "SHOW",
   "SET REPEAT",
   "RENAME",
@@ -190,18 +190,19 @@ void drawDecodedSignal() {
   
   dec = mySwitch.getReceivedValue();
   lengthval = mySwitch.getReceivedBitlength();
-  rssi = ELECHOUSE_cc1101.getRssi();
   lqi = ELECHOUSE_cc1101.getLqi();
+  rssi = ELECHOUSE_cc1101.getRssi();
+  
 
   printConsoleLocal(" ", TFT_MAGENTA, 1, 1);
   printConsoleLocal(" ", TFT_MAGENTA, 1, 0);
   printConsoleLocal(F("DETECTED! DECODE:"), TFT_RED, 1, 0);
 
-  //toPrint = "RSSI/LQI: ";
-  //toPrint += (String)rssi;
-  //toPrint += "/";
-  //toPrint += (String)lqi;
-  //printConsoleLocal(toPrint, TFT_YELLOW, 1, 0);
+  toPrint = "RSSI/LQI: ";
+  toPrint += (String)rssi;
+  toPrint += "/";
+  toPrint += (String)lqi;
+  printConsoleLocal(toPrint, TFT_YELLOW, 1, 0);
   
   toPrint="DEC: ";
   toPrint+=(String)dec;
@@ -334,13 +335,17 @@ void setup(){
   myLED.begin(&myESPboy.mcp);
   terminalGUIobj = new ESPboyTerminalGUI(&myESPboy.tft, &myESPboy.mcp);
   menuGUIobj = new ESPboyMenuGUI(&myESPboy.tft, &myESPboy.mcp);
-    
+  //delay(500);
   ELECHOUSE_cc1101.Init();            // must be set to initialize the cc1101!
-  ELECHOUSE_cc1101.setRxBW(812.50);  // Set the Receive Bandwidth in kHz. Value from 58.03 to 812.50. Default is 812.50 kHz.
+  ELECHOUSE_cc1101.setRxBW(200);  // Set the Receive Bandwidth in kHz. Value from 58.03 to 812.50. Default is 812.50 kHz.
   ELECHOUSE_cc1101.setMHZ(433.92); //The cc1101 can: 300-348 MHZ, 387-464MHZ and 779-928MHZ.  
+  ELECHOUSE_cc1101.setDeviation(10);   // Set the Frequency deviation in kHz. Value from 1.58 to 380.85. Default is 47.60 kHz.
   ELECHOUSE_cc1101.setDRate(5);       // Set the Data Rate in kBaud. Value from 0.02 to 1621.83. Default is 99.97 kBaud!
+  ELECHOUSE_cc1101.setModulation(2);      // set modulation mode. 0 = 2-FSK, 1 = GFSK, 2 = ASK/OOK, 3 = 4-FSK, 4 = MSK.
+  
   mySwitch.enableReceive(CC1101riceivePin);  // Receiver on interrupt 0 => that is pin #2
   ELECHOUSE_cc1101.SetRx();  // set Receive on
+  
 }
 
 
@@ -423,10 +428,12 @@ void send_f(uint16_t selectedSignal){
   toPrint = (String)recordStoredVector[selectedSignal].recordRepeatno;
   toPrint += " times";
   printConsoleLocal(toPrint, TFT_MAGENTA, 1, 0);
-    
+
+
+
+  mySwitch.enableTransmit(CC1101sendPin);   // Transmit on
   ELECHOUSE_cc1101.SetTx();           // set Transmit on
   mySwitch.disableReceive();         // Receiver off
-  mySwitch.enableTransmit(CC1101sendPin);   // Transmit on
   mySwitch.setRepeatTransmit(recordStoredVector[selectedSignal].recordRepeatno); // transmission repetitions.
   mySwitch.setProtocol(recordStoredVector[selectedSignal].recordProtocol);        // send Received Protocol
   mySwitch.setPulseLength(recordStoredVector[selectedSignal].recordPulselen);    // send Received Delay
@@ -456,27 +463,43 @@ void show_f(uint16_t selectedSignal) {
   toPrint = F("Signal: ");
   toPrint+=recordStoredVector[selectedSignal].recordName;
   printConsoleLocal(toPrint, TFT_GREEN, 1, 0);
-
+//softSerial.print("Signal: ");
+//Serial.print(recordStoredVector[selectedSignal].recordName);
   toPrint = F("Value: ");
   toPrint += (String)recordStoredVector[selectedSignal].recordValue;
   toPrint += (" (");
   toPrint += (String)recordStoredVector[selectedSignal].recordBits;
   toPrint += (" Bit)");
   printConsoleLocal(toPrint, TFT_GREEN, 1, 0);
+//Serial.print("Value: ");
+//Serial.print((String)recordStoredVector[selectedSignal].recordValue);
+//Serial.print(" (");
+//Serial.print((String)recordStoredVector[selectedSignal].recordBits);
+//Serial.print(" Bit)");
 
   toPrint = F("Repeat No: ");
   toPrint += (String)recordStoredVector[selectedSignal].recordRepeatno;
   printConsoleLocal(toPrint, TFT_YELLOW, 1, 0);
+//Serial.print("Repeat No: ");
+//Serial.print((String)recordStoredVector[selectedSignal].recordRepeatno);
 
   toPrint = F("Pulse length: ");
   toPrint += (String)recordStoredVector[selectedSignal].recordPulselen;
   printConsoleLocal(toPrint, TFT_YELLOW, 1, 0);
+//Serial.print("Pulse length: ");
+//Serial.print((String)recordStoredVector[selectedSignal].recordPulselen);
 
   toPrint = F("Protocol: ");
   toPrint += (String)recordStoredVector[selectedSignal].recordProtocol;
   printConsoleLocal(toPrint, TFT_YELLOW, 1, 0);
   printConsoleLocal(protDecode[recordStoredVector[selectedSignal].recordProtocol], TFT_WHITE, 1, 0);
   
+//Serial.print("Protocol: ");
+//Serial.print((String)recordStoredVector[selectedSignal].recordProtocol);
+  
+//Serial.print("dec: ");
+//Serial.print(protDecode[recordStoredVector[selectedSignal].recordProtocol]);
+
   printConsoleLocal(F("DONE"), TFT_MAGENTA, 1, 0);
   while (!myESPboy.getKeys())delay(10);
   while (myESPboy.getKeys())delay(10);
